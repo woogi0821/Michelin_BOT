@@ -216,3 +216,37 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ============================================================
+# AI / Chatbot / Cleanbot Custom Settings
+# ============================================================
+
+# 1. AI 모델 가중치 및 로컬 분석 모델 파일 (용량이 매우 큼)
+# Hugging Face 모델이나 로컬 BERT 모델(kcbert 등) 다운로드 폴더
+models/
+weights/
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+
+# 2. 클린봇 학습 및 테스트용 로컬 데이터셋
+# 욕설 사전, 데이터 정제용 CSV, 엑셀 파일 등
+data/
+datasets/
+*.csv
+*.xlsx
+*.jsonl
+
+# 3. 텍스트 임베딩 및 벡터 데이터베이스 (Vector DB)
+# 클린봇 고도화나 데이터 검색용 Chroma, Faiss 등 로컬 DB 파일
+.chroma/
+faiss_index/
+*.index
+*.pkl
+*.pickle
+
+# 4. 로그 및 모니터링 (AI 연산/토큰 소모 로그)
+chatbot_history/
+*.log
