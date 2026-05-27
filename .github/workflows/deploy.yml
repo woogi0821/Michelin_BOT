@@ -1,0 +1,50 @@
+name: chatbot deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > was.pem
+          chmod 600 was.pem
+
+      - name: Upload chatbot files
+        run: |
+          scp -o StrictHostKeyChecking=no -i was.pem -r \
+          ChatBotService/ \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/ChatBotService
+
+      - name: Deploy and Restart Server
+        run: |
+          ssh -o StrictHostKeyChecking=no -i was.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            # 1. Python 3.12 및 pip 설치 확인 (없으면 설치)
+            if ! command -v python3.12 &> /dev/null; then
+              sudo apt update
+              sudo apt install -y python3.12 python3.12-venv python3-pip
+            fi
+
+            # 2. Python 버전 확인 (로그 확인용)
+            python3.12 --version
+
+            # 3. 의존성 설치
+            cd ~/ChatBotService
+            pip install -r requirements.txt --break-system-packages
+
+            # 4. 기존 실행 중인 프로세스 종료 (없어도 에러 무시)
+            pgrep -f "python3.12 app.py" | xargs kill -9 2>/dev/null || true
+
+            # 5. 잠시 대기 (포트 해제)
+            sleep 3
+
+            # 6. 새 버전 백그라운드 실행 (로그는 ~/chatbot.log에 저장)
+            nohup python3.12 app.py > ~/chatbot.log 2>&1 &
+
+            echo "Server restarted with PID: $(pgrep -f 'python3.12 app.py')"
+          EOF
