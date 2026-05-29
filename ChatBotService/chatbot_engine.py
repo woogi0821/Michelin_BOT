@@ -91,7 +91,7 @@ class GeminiChatbot:
                 contents=contents,
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
-                    temperature=0.2  # 낮을수록 일관되고 보수적인 답변 (기본값 1.0)
+                    temperature=0.5  # 낮을수록 일관되고 보수적인 답변 (기본값 1.0)
                 )
             )
             return response.text
